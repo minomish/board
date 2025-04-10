@@ -1,0 +1,19 @@
+
+
+
+nav ul{
+    display: flex;
+    align-items: center;
+}
+
+nav ul li {
+    list-style-type: none;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
