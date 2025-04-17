@@ -1,63 +1,88 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import BoardWrapper from "./components/BoardWrapper";
 import BoardList from "./components/BoardList/BoardList";
-import Board from "./components/Board/Board";
 import "./App.css";
 
-
-
-
 function App() {
-  const [boards, setBoards] = useState([]);
-  const [activeBoardIndex, setActiveBoardIndex] = useState(null);
+  const [boards, setBoards] = useState(() => {
+    const saved = localStorage.getItem("boards");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("boards", JSON.stringify(boards));
+  }, [boards]);
 
   const addBoard = (name) => {
-    setBoards([...boards, { name, columns: [] }]);
+    setBoards([...boards, { id: Date.now(), name, columns: [] }]);
   };
 
-  const addColumn = (boardIndex, columnName) => {
-    const updatedBoards = [...boards];
-    updatedBoards[boardIndex].columns.push({ name: columnName, tasks: [] });
-    setBoards(updatedBoards);
+  const editBoard = (id, newName) => {
+    setBoards(boards.map(b => (b.id === id ? { ...b, name: newName } : b)));
   };
 
-  const addTask = (boardIndex, columnIndex, task) => {
-    const updatedBoards = [...boards];
-    updatedBoards[boardIndex].columns[columnIndex].tasks.push(task);
-    setBoards(updatedBoards);
+  const deleteBoard = (id) => {
+    setBoards(boards.filter(b => b.id !== id));
+  };
+
+  const addColumn = (boardId, columnName) => {
+    setBoards(boards.map(b => b.id === boardId
+      ? { ...b, columns: [...b.columns, { name: columnName, tasks: [] }] }
+      : b
+    ));
+  };
+
+  const addTask = (boardId, columnIndex, task) => {
+    setBoards(boards.map(b => {
+      if (b.id !== boardId) return b;
+      const updatedColumns = [...b.columns];
+      updatedColumns[columnIndex].tasks.push(task);
+      return { ...b, columns: updatedColumns };
+    }));
   };
 
   const moveTask = (from, to) => {
     const updatedBoards = [...boards];
-  
-    const taskToMove =
-      updatedBoards[from.boardIndex].columns[from.columnIndex].tasks[from.taskIndex];
-  
-    // Удаляем из старой позиции
-    updatedBoards[from.boardIndex].columns[from.columnIndex].tasks.splice(from.taskIndex, 1);
-  
-    // Добавляем в новую колонку
-    updatedBoards[to.boardIndex].columns[to.columnIndex].tasks.push(taskToMove);
+    
+    if (to.action === "delete") {
+      updatedBoards[from.boardIndex].columns[from.columnIndex].tasks.splice(from.taskIndex, 1);
+    } else {
+      const taskToMove = updatedBoards[from.boardIndex].columns[from.columnIndex].tasks[from.taskIndex];
+      updatedBoards[from.boardIndex].columns[from.columnIndex].tasks.splice(from.taskIndex, 1);
+      updatedBoards[to.boardIndex].columns[to.columnIndex].tasks.splice(to.taskIndex, 0, taskToMove);
+    }
   
     setBoards(updatedBoards);
   };
 
   return (
-    <div className="App">
-      <BoardList
-        boards={boards}
-        setActiveBoardIndex={setActiveBoardIndex}
-        addBoard={addBoard}
-      />
-      {activeBoardIndex !== null && (
-        <Board
-          board={boards[activeBoardIndex]}
-          boardIndex={activeBoardIndex}
-          addColumn={addColumn}
-          addTask={addTask}
-          moveTask={moveTask}
-        />
-      )}
-    </div>
+    <DndProvider backend={HTML5Backend}>
+      <Router>
+        <Routes>
+          <Route path="/" element={
+            <BoardList
+              boards={boards}
+              addBoard={addBoard}
+              editBoard={editBoard}
+              deleteBoard={deleteBoard}
+            />
+          } />
+          <Route path="/board/:boardId" element={
+            <BoardWrapper
+              boards={boards}
+              addColumn={addColumn}
+              addTask={addTask}
+              moveTask={moveTask}
+              editBoard={editBoard}
+              deleteBoard={deleteBoard}
+            />
+          } />
+        </Routes>
+      </Router>
+    </DndProvider>
   );
 }
 

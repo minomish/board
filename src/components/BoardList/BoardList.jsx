@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "./BoardList.css";
 
-const BoardList = ({ boards, setActiveBoardIndex, addBoard }) => {
+const BoardList = ({ boards, addBoard, editBoard, deleteBoard }) => {
   const [boardName, setBoardName] = useState("");
 
   const handleAddBoard = () => {
@@ -18,14 +19,15 @@ const BoardList = ({ boards, setActiveBoardIndex, addBoard }) => {
         value={boardName}
         onChange={(e) => setBoardName(e.target.value)}
         placeholder="New board name"
-        type="text"
         className="board-input"
       />
       <button onClick={handleAddBoard} className="add-btn">Create</button>
       <ul>
-        {boards.map((board, index) => (
-          <li key={index} onClick={() => setActiveBoardIndex(index)}>
-            {board.name}
+        {boards.map((board) => (
+          <li key={board.id}>
+            <Link to={`/board/${board.id}`}>{board.name}</Link>
+            <button onClick={() => editBoard(board.id, prompt("New name:", board.name))}>Edit</button>
+            <button onClick={() => deleteBoard(board.id)}>Delete</button>
           </li>
         ))}
       </ul>
