@@ -1,17 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import BoardList from "./components/BoardList/BoardList";
 import Board from "./components/Board/Board";
 import "./App.css";
 
-
-
-
 function App() {
   const [boards, setBoards] = useState([]);
-  const [activeBoardIndex, setActiveBoardIndex] = useState(null);
+  
+  // Загрузка досок из localStorage при монтировании
+  useEffect(() => {
+    const saved = localStorage.getItem("boards");
+    if (saved) {
+      setBoards(JSON.parse(saved));
+    }
+  }, []);
+
+  // Сохранение досок в localStorage при изменении
+  useEffect(() => {
+    if (boards.length > 0) {
+      localStorage.setItem("boards", JSON.stringify(boards));
+    }
+  }, [boards]);
 
   const addBoard = (name) => {
-    setBoards([...boards, { name, columns: [] }]);
+    setBoards((prevBoards) => {
+      const updatedBoards = [...prevBoards, { name, columns: [], tasks: [] }];
+      return updatedBoards;
+    });
   };
 
   const addColumn = (boardIndex, columnName) => {
@@ -20,44 +35,70 @@ function App() {
     setBoards(updatedBoards);
   };
 
-  const addTask = (boardIndex, columnIndex, task) => {
+  const addTask = (boardIndex, taskName, taskDescription) => {
     const updatedBoards = [...boards];
-    updatedBoards[boardIndex].columns[columnIndex].tasks.push(task);
+    updatedBoards[boardIndex].tasks.push({ id: Date.now(), name: taskName, description: taskDescription });
     setBoards(updatedBoards);
   };
 
-  const moveTask = (from, to) => {
+  const deleteBoard = (index) => {
     const updatedBoards = [...boards];
+    updatedBoards.splice(index, 1); // Удаляем доску по индексу
+    setBoards(updatedBoards); // Обновляем состояние
+
+    // Обновление localStorage после удаления доски
+    localStorage.setItem("boards", JSON.stringify(updatedBoards));
+  };
+
+  const editBoardName = (index, newName) => {
+    const updatedBoards = boards.map((board, i) => i === index ? { ...board, name: newName } : board);
+    setBoards(updatedBoards);
+  };
+
   
-    const taskToMove =
-      updatedBoards[from.boardIndex].columns[from.columnIndex].tasks[from.taskIndex];
-  
-    // Удаляем из старой позиции
-    updatedBoards[from.boardIndex].columns[from.columnIndex].tasks.splice(from.taskIndex, 1);
-  
-    // Добавляем в новую колонку
-    updatedBoards[to.boardIndex].columns[to.columnIndex].tasks.push(taskToMove);
-  
+  const updateTask = (boardIndex, updatedTask) => {
+    const updatedBoards = [...boards];
+    updatedBoards[boardIndex].tasks = updatedBoards[boardIndex].tasks.map(task => 
+      task.id === updatedTask.id ? updatedTask : task
+    );
+    setBoards(updatedBoards);
+  };
+
+  const deleteTask = (boardIndex, taskId) => {
+    const updatedBoards = [...boards];
+    updatedBoards[boardIndex].tasks = updatedBoards[boardIndex].tasks.filter(task => task.id !== taskId);
     setBoards(updatedBoards);
   };
 
   return (
-    <div className="App">
-      <BoardList
-        boards={boards}
-        setActiveBoardIndex={setActiveBoardIndex}
-        addBoard={addBoard}
-      />
-      {activeBoardIndex !== null && (
-        <Board
-          board={boards[activeBoardIndex]}
-          boardIndex={activeBoardIndex}
-          addColumn={addColumn}
-          addTask={addTask}
-          moveTask={moveTask}
-        />
-      )}
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <BoardList
+                boards={boards}
+                addBoard={addBoard}
+                deleteBoard={deleteBoard}
+                editBoardName={editBoardName}
+              />
+            }
+          />
+          <Route
+            path="/board/:index"
+            element={
+              <Board
+                boards={boards}
+                updateTask={updateTask}
+                addTask={addTask}
+                deleteTask={deleteTask}
+              />
+            }
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

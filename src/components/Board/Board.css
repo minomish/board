@@ -1,0 +1,33 @@
+.board {
+    padding: 2rem;
+    background: #f4f4f9;
+    min-height: 100vh;
+  }
+  
+  .board-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .board-header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .task-form {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .task-actions button {
+    margin-left: 0.5rem;
+  }
+  
