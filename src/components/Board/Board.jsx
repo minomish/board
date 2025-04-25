@@ -1,59 +1,85 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';  // Импортируем useParams
-import Task from '../Task/Task';
-import Button from '../Button/Button';
-import Input from '../Input/Input';
-import './Board.css';
+import React, { useState } from "react";
+import Column from "../Column/Column";
+import EditBoardModal from "../EditBoardModal/EditBoardModal"; // импортируем модал
+import "./Board.css";
 
-const Board = ({ boards, addTask, deleteTask }) => {
-  const { index } = useParams(); // Получаем индекс из URL
-  const boardIndex = parseInt(index, 10); // Преобразуем индекс в число
-  const board = boards[boardIndex]; // Получаем доску по индексу
+const Board = ({ board, boardIndex, addColumn, addTask, moveTask, editBoard, deleteBoard }) => {
+  const [columnName, setColumnName] = useState("");
+  const [newBoardName, setNewBoardName] = useState(board.name);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [showModal, setShowModal] = useState(false); // состояние для показа модала
 
-  // Проверка на наличие доски по индексу
   if (!board) {
-    return <div>Доска не найдена</div>;  // Если доска не найдена
+    return <div>Loading...</div>;
   }
 
-  const [newTaskName, setNewTaskName] = useState("");
-  const [newTaskDescription, setNewTaskDescription] = useState("");
-
-  const handleAddTask = () => {
-    if (newTaskName.trim() && newTaskDescription.trim()) {
-      addTask(boardIndex, newTaskName, newTaskDescription);
-      setNewTaskName("");
-      setNewTaskDescription("");
+  const handleAddColumn = () => {
+    if (columnName.trim()) {
+      addColumn(board.id, columnName);
+      setColumnName("");
     }
+  };
+
+  const handleDeleteBoard = () => {
+    deleteBoard(board.id);
+  };
+
+  const moveColumn = (fromIndex, toIndex) => {
+    const updatedColumns = [...board.columns];
+    const [moved] = updatedColumns.splice(fromIndex, 1);
+    updatedColumns.splice(toIndex, 0, moved);
+    board.columns = updatedColumns;
+  };
+
+  const handleEditBoardName = () => {
+    setShowModal(true); // открываем модал при нажатии на кнопку "Edit Name"
+  };
+
+  const handleSaveBoardName = (newName) => {
+    editBoard(board.id, newName);
+    setShowModal(false); // закрываем модал после сохранения имени
   };
 
   return (
     <div className="board">
       <div className="board-header">
-        <h1>{board.name}</h1>
-        <div className="task-form">
-          <Input 
-            value={newTaskName}
-            onChange={(e) => setNewTaskName(e.target.value)}
-            placeholder="Название задачи"
-          />
-          <Input 
-            value={newTaskDescription}
-            onChange={(e) => setNewTaskDescription(e.target.value)}
-            placeholder="Описание задачи"
-          />
-          <Button onClick={handleAddTask}>Добавить задачу</Button>
+        <h2>{board.name}</h2>
+        <div className="board-actions">
+          <button onClick={handleEditBoardName}>Edit Name</button>
+          <button onClick={handleDeleteBoard}>Delete Board</button>
         </div>
       </div>
-      
-      <div className="task-list">
-        {board.tasks.map((task) => (
-          <Task
-            key={task.id}
-            task={task}
-            deleteTask={() => deleteTask(boardIndex, task.id)}
+      <div className="columns-container">
+        {board.columns.map((col, idx) => (
+          <Column
+            key={idx}
+            column={col}
+            columnIndex={idx}
+            moveColumn={moveColumn}
+            addTask={(columnIdx, task) => addTask(board.id, columnIdx, task)}
+            moveTask={(from, to) =>
+              moveTask({ boardIndex, ...from }, { boardIndex, ...to })
+            }
           />
         ))}
+        <div className="add-column">
+          <input
+            value={columnName}
+            onChange={(e) => setColumnName(e.target.value)}
+            placeholder="New column"
+          />
+          <button onClick={handleAddColumn}>Add Column</button>
+        </div>
       </div>
+
+      {/* Вставляем модал для редактирования имени доски */}
+      {showModal && (
+        <EditBoardModal
+          currentName={board.name}
+          onSave={handleSaveBoardName}
+          onCancel={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };

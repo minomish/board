@@ -1,46 +1,61 @@
-import React from "react";
+import React, { useState } from "react";
+import { useDrag, useDrop } from "react-dnd";
 import TaskCard from "../TaskCard/TaskCard";
 import "./Column.css";
 
-const Column = ({
-  column,
-  boardIndex,
-  columnIndex,
-  addTask,
-  moveTask,
-}) => {
-  const handleDragStart = (e, taskIndex) => {
-    e.dataTransfer.setData(
-      "task",
-      JSON.stringify({ boardIndex, columnIndex, taskIndex })
-    );
-  };
+const Column = ({ column, columnIndex, moveColumn, addTask, moveTask }) => {
+  const [taskText, setTaskText] = useState("");
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const data = JSON.parse(e.dataTransfer.getData("task"));
-    moveTask(data, { boardIndex, columnIndex });
-  };
+  const [, drop] = useDrop({
+    accept: "COLUMN",
+    hover: (draggedItem) => {
+      if (draggedItem.index === columnIndex) return;
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
+      moveColumn(draggedItem.index, columnIndex);
+      draggedItem.index = columnIndex;
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: "COLUMN",
+    item: { index: columnIndex },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const handleAddTask = () => {
+    if (taskText.trim()) {
+      addTask(columnIndex, taskText);
+      setTaskText("");
+    }
   };
 
   return (
     <div
+      ref={(node) => drag(drop(node))}
       className="column"
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
+      style={{ opacity: isDragging ? 0.5 : 1 }}
     >
       <h3>{column.name}</h3>
-      <div className="task-list">
-        {column.tasks.map((task, idx) => (
+      <div className="tasks">
+        {column.tasks.map((task, index) => (
           <TaskCard
-            key={idx}
+            key={index}
             task={task}
-            onDragStart={(e) => handleDragStart(e, idx)}
+            index={index}
+            columnIndex={columnIndex}
+            moveTask={moveTask}
           />
         ))}
+      </div>
+      <div className="task-input">
+        <input
+          value={taskText}
+          onChange={(e) => setTaskText(e.target.value)}
+          placeholder="New task"
+        />
+        <button onClick={handleAddTask}>+</button>
       </div>
     </div>
   );

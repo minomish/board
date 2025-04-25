@@ -1,104 +1,88 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import BoardWrapper from "./components/BoardWrapper";
 import BoardList from "./components/BoardList/BoardList";
-import Board from "./components/Board/Board";
 import "./App.css";
 
 function App() {
-  const [boards, setBoards] = useState([]);
-  
-  // Загрузка досок из localStorage при монтировании
-  useEffect(() => {
+  const [boards, setBoards] = useState(() => {
     const saved = localStorage.getItem("boards");
-    if (saved) {
-      setBoards(JSON.parse(saved));
-    }
-  }, []);
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  // Сохранение досок в localStorage при изменении
   useEffect(() => {
-    if (boards.length > 0) {
-      localStorage.setItem("boards", JSON.stringify(boards));
-    }
+    localStorage.setItem("boards", JSON.stringify(boards));
   }, [boards]);
 
   const addBoard = (name) => {
-    setBoards((prevBoards) => {
-      const updatedBoards = [...prevBoards, { name, columns: [], tasks: [] }];
-      return updatedBoards;
-    });
+    setBoards([...boards, { id: Date.now(), name, columns: [] }]);
   };
 
-  const addColumn = (boardIndex, columnName) => {
+  const editBoard = (id, newName) => {
+    setBoards(boards.map(b => (b.id === id ? { ...b, name: newName } : b)));
+  };
+
+  const deleteBoard = (id) => {
+    setBoards(boards.filter(b => b.id !== id));
+  };
+
+  const addColumn = (boardId, columnName) => {
+    setBoards(boards.map(b => b.id === boardId
+      ? { ...b, columns: [...b.columns, { name: columnName, tasks: [] }] }
+      : b
+    ));
+  };
+
+  const addTask = (boardId, columnIndex, task) => {
+    setBoards(boards.map(b => {
+      if (b.id !== boardId) return b;
+      const updatedColumns = [...b.columns];
+      updatedColumns[columnIndex].tasks.push(task);
+      return { ...b, columns: updatedColumns };
+    }));
+  };
+
+  const moveTask = (from, to) => {
     const updatedBoards = [...boards];
-    updatedBoards[boardIndex].columns.push({ name: columnName, tasks: [] });
-    setBoards(updatedBoards);
-  };
-
-  const addTask = (boardIndex, taskName, taskDescription) => {
-    const updatedBoards = [...boards];
-    updatedBoards[boardIndex].tasks.push({ id: Date.now(), name: taskName, description: taskDescription });
-    setBoards(updatedBoards);
-  };
-
-  const deleteBoard = (index) => {
-    const updatedBoards = [...boards];
-    updatedBoards.splice(index, 1); // Удаляем доску по индексу
-    setBoards(updatedBoards); // Обновляем состояние
-
-    // Обновление localStorage после удаления доски
-    localStorage.setItem("boards", JSON.stringify(updatedBoards));
-  };
-
-  const editBoardName = (index, newName) => {
-    const updatedBoards = boards.map((board, i) => i === index ? { ...board, name: newName } : board);
-    setBoards(updatedBoards);
-  };
-
+    
+    if (to.action === "delete") {
+      updatedBoards[from.boardIndex].columns[from.columnIndex].tasks.splice(from.taskIndex, 1);
+    } else {
+      const taskToMove = updatedBoards[from.boardIndex].columns[from.columnIndex].tasks[from.taskIndex];
+      updatedBoards[from.boardIndex].columns[from.columnIndex].tasks.splice(from.taskIndex, 1);
+      updatedBoards[to.boardIndex].columns[to.columnIndex].tasks.splice(to.taskIndex, 0, taskToMove);
+    }
   
-  const updateTask = (boardIndex, updatedTask) => {
-    const updatedBoards = [...boards];
-    updatedBoards[boardIndex].tasks = updatedBoards[boardIndex].tasks.map(task => 
-      task.id === updatedTask.id ? updatedTask : task
-    );
-    setBoards(updatedBoards);
-  };
-
-  const deleteTask = (boardIndex, taskId) => {
-    const updatedBoards = [...boards];
-    updatedBoards[boardIndex].tasks = updatedBoards[boardIndex].tasks.filter(task => task.id !== taskId);
     setBoards(updatedBoards);
   };
 
   return (
-    <Router>
-      <div className="App">
+    <DndProvider backend={HTML5Backend}>
+      <Router>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <BoardList
-                boards={boards}
-                addBoard={addBoard}
-                deleteBoard={deleteBoard}
-                editBoardName={editBoardName}
-              />
-            }
-          />
-          <Route
-            path="/board/:index"
-            element={
-              <Board
-                boards={boards}
-                updateTask={updateTask}
-                addTask={addTask}
-                deleteTask={deleteTask}
-              />
-            }
-          />
+          <Route path="/" element={
+            <BoardList
+              boards={boards}
+              addBoard={addBoard}
+              editBoard={editBoard}
+              deleteBoard={deleteBoard}
+            />
+          } />
+          <Route path="/board/:boardId" element={
+            <BoardWrapper
+              boards={boards}
+              addColumn={addColumn}
+              addTask={addTask}
+              moveTask={moveTask}
+              editBoard={editBoard}
+              deleteBoard={deleteBoard}
+            />
+          } />
         </Routes>
-      </div>
-    </Router>
+      </Router>
+    </DndProvider>
   );
 }
 

@@ -1,14 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./BoardList.css";
 
-import Button from "../Button/Button";
-import Input from "../Input/Input";
-
-const BoardList = ({ boards, addBoard, deleteBoard, editBoardName }) => {
+const BoardList = ({ boards, addBoard, editBoard, deleteBoard }) => {
   const [boardName, setBoardName] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [newName, setNewName] = useState("");
+  const navigate = useNavigate();
 
   const handleAddBoard = () => {
     if (boardName.trim()) {
@@ -17,72 +13,41 @@ const BoardList = ({ boards, addBoard, deleteBoard, editBoardName }) => {
     }
   };
 
-  const handleDeleteBoard = (index) => {
-    deleteBoard(index);
-  };
-
   return (
     <div className="board-list">
       <h1>Boards</h1>
-
-      <div className="input-button-container">
-        <Input
-          value={boardName}
-          onChange={(e) => setBoardName(e.target.value)}
-          placeholder="Введите название доски"
-        />
-        <Button onClick={handleAddBoard} className="inside-btn">+</Button>
-      </div>
-
+      <input
+        value={boardName}
+        onChange={(e) => setBoardName(e.target.value)}
+        placeholder="New board name"
+        className="board-input"
+      />
+      <button onClick={handleAddBoard} className="add-btn">Create</button>
       <ul>
-        {boards.map((board, index) => (
-          <li
-          key={index}
-          className={editingIndex === index ? "editing" : ""}
-          onClick={() => {
-            if (editingIndex === null) {
-              window.location.href = `/board/${index}`;
-            }
-          }}
-        >
-          {editingIndex === index ? (
-            <>
-              <Input
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="Новое название"
-              />
-              <div className="board-edit-actions">
-                <Button onClick={(e) => {
+        {boards.map((board) => (
+          <li key={board.id} onClick={() => navigate(`/board/${board.id}`)}>
+            {board.name}
+            <div>
+              <button
+                onClick={(e) => {
                   e.stopPropagation();
-                  editBoardName(index, newName);
-                  setEditingIndex(null);
-                }}>💾</Button>
-                <Button onClick={(e) => {
+                  const newName = prompt("New name:", board.name);
+                  if (newName) editBoard(board.id, newName);
+                }}
+              >
+                Edit
+              </button>
+            
+              <button
+                onClick={(e) => {
                   e.stopPropagation();
-                  setEditingIndex(null);
-                }}>❌</Button>
-              </div>
-            </>
-          ) : (
-            <div className="board-item">
-              <span className="board-name">{board.name}</span>
-              <div className="board-actions">
-                <Button onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingIndex(index);
-                  setNewName(board.name);
-                }}>✏️</Button>
-                <Button onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteBoard(index);
-                }}>🗑️</Button>
-              </div>
-            </div>
-          )}
-        </li>
-        
-              
+                  deleteBoard(board.id);
+                }}
+              >
+                Delete
+              </button>
+          </div>
+        </li>        
         ))}
       </ul>
     </div>
