@@ -29,12 +29,41 @@ function App() {
   };
 
   const addColumn = (boardId, columnName) => {
-    setBoards(boards.map(b => b.id === boardId
-      ? { ...b, columns: [...b.columns, { name: columnName, tasks: [] }] }
-      : b
+    setBoards(boards.map(b => 
+      b.id === boardId
+        ? { ...b, columns: [...b.columns, { name: columnName, tasks: [] }] }
+        : b
     ));
   };
 
+  const editColumn = (boardId, columnIndex, newName) => {
+    setBoards(prevBoards =>
+      prevBoards.map(board =>
+        board.id === boardId
+          ? {
+              ...board,
+              columns: board.columns.map((col, idx) =>
+                idx === columnIndex ? { ...col, name: newName } : col
+              )
+            }
+          : board
+      )
+    );
+  };
+
+  const deleteColumn = (boardId, columnIndex) => {
+    setBoards(prevBoards =>
+      prevBoards.map(board =>
+        board.id === boardId
+          ? {
+              ...board,
+              columns: board.columns.filter((_, idx) => idx !== columnIndex)
+            }
+          : board
+      )
+    );
+  };
+  
   const addTask = (boardId, columnIndex, task) => {
     setBoards(boards.map(b => {
       if (b.id !== boardId) return b;
@@ -79,7 +108,11 @@ function App() {
               moveTask={moveTask}
               editBoard={editBoard}
               deleteBoard={deleteBoard}
+              editColumn={editColumn}
+              deleteColumn={deleteColumn}
             />
+          
+          
           } />
 
         </Routes>

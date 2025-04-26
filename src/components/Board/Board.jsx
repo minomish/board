@@ -3,7 +3,7 @@ import Column from "../Column/Column";
 import EditBoardModal from "../EditBoardModal/EditBoardModal";
 import "./Board.css";
 
-const Board = ({ board, boardIndex, addColumn, addTask, moveTask, moveColumn, editBoard, deleteBoard }) => {
+const Board = ({ board, boardIndex, addColumn, addTask, moveTask, moveColumn, editColumn, deleteColumn, editBoard, deleteBoard }) => {
   const [columnName, setColumnName] = useState("");
   const [showModal, setShowModal] = useState(false);
 
@@ -43,12 +43,14 @@ const Board = ({ board, boardIndex, addColumn, addTask, moveTask, moveColumn, ed
             key={idx}
             column={col}
             columnIndex={idx}
+            boardId={board.id}
             moveColumn={moveColumn}
-            addTask={(columnIdx, task) => addTask(board.id, columnIdx, task)}
-            moveTask={(from, to) =>
-              moveTask({ boardIndex, ...from }, { boardIndex, ...to })
-            }
-          />
+            editColumn={(newName) => editColumn(board.id, idx, newName)}
+            deleteColumn={() => deleteColumn(board.id, idx)}
+            addTask={(task) => addTask(board.id, idx, task)}
+            moveTask={(from, to) => moveTask({ boardIndex, ...from }, { boardIndex, ...to })}
+        />
+        
         ))}
         <div className="add-column">
           <input

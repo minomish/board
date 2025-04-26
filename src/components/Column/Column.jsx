@@ -1,13 +1,31 @@
-import React, { useState,useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import TaskCard from "../TaskCard/TaskCard";
 import "./Column.css";
 
-const Column = ({ column, columnIndex, moveColumn, addTask, moveTask }) => {
+const Column = ({ column, columnIndex, boardId, moveColumn, editColumn, deleteColumn, addTask, moveTask }) => {
   const [taskText, setTaskText] = useState("");
-
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(column.name);
   const tasksRef = useRef(null);
+
+  const handleNameClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    if (newName !== column.name) {
+      editColumn(newName);  // No need to pass boardId and columnIndex here
+    }
+    setIsEditing(false);
+  };
+  
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleBlur();
+    }
+  };
 
   const [{ isDragging }, dragColumn] = useDrag({
     type: "COLUMN",
@@ -25,7 +43,6 @@ const Column = ({ column, columnIndex, moveColumn, addTask, moveTask }) => {
       draggedItem.index = columnIndex;  
     },
   });
-  
 
   const [, dropTask] = useDrop({
     accept: "TASK",
@@ -65,7 +82,6 @@ const Column = ({ column, columnIndex, moveColumn, addTask, moveTask }) => {
       }
     },
   });
-  
 
   const handleAddTask = () => {
     if (taskText.trim()) {
@@ -76,17 +92,31 @@ const Column = ({ column, columnIndex, moveColumn, addTask, moveTask }) => {
 
   if (!column) return null;
 
-
   const ref = useRef(null);
-dragColumn(dropColumn(ref));
-  return (
-      <div ref={ref} className="column" style={{ opacity: isDragging ? 0.5 : 1 }}>
+  dragColumn(dropColumn(ref));
 
-      <h3>{column.name}</h3>
-        <div className="tasks" ref={(node) => {
-          tasksRef.current = node;
-          dropTask(node);
-        }}>
+  return (
+    <div ref={ref} className="column" style={{ opacity: isDragging ? 0.5 : 1 }}>
+      <div className="column-header">
+        {isEditing ? (
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            autoFocus
+          />
+        ) : (
+          <h3 onClick={handleNameClick}>{column.name}</h3>
+        )}
+      </div>
+
+      <div className="tasks" ref={(node) => {
+        tasksRef.current = node;
+        dropTask(node);
+      }}>
+        <button  className="delete-column-btn" onClick={() => deleteColumn(columnIndex)}>Delete</button>
 
         {column.tasks.map((task, index) => (
           <TaskCard
@@ -98,6 +128,7 @@ dragColumn(dropColumn(ref));
           />
         ))}
       </div>
+
       <div className="task-input">
         <input
           value={taskText}

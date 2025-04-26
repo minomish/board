@@ -12,6 +12,11 @@
   transition: box-shadow 0.3s ease;
 }
 
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 .column h3 {
   margin: 0;
@@ -19,6 +24,8 @@
   font-weight: 600;
   color: #fe5b3d;
   text-align: center;
+  cursor: pointer;
+  flex: 1;
 }
 
 .tasks {
@@ -29,6 +36,33 @@
   overflow-y: auto;
   max-height: 60vh;
   padding-right: 2px;
+}
+
+.column-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.delete-column-btn {
+  padding: 0.4rem 0.8rem;
+  background-color: #ff3a30;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.delete-column-btn:hover {
+  background-color: #e62e24;
+  transform: scale(1.05);
+}
+
+.delete-column-btn:active {
+  transform: scale(0.98);
 }
 
 .task-input {
