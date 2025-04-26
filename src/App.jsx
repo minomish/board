@@ -17,7 +17,11 @@ function App() {
   }, [boards]);
 
   const addBoard = (name) => {
-    setBoards([...boards, { id: Date.now(), name, columns: [] }]);
+    setBoards([...boards, { 
+      id: Date.now(), 
+      name, 
+      columns: [] 
+    }]);
   };
 
   const editBoard = (id, newName) => {
@@ -35,13 +39,53 @@ function App() {
     ));
   };
 
-  const addTask = (boardId, columnIndex, task) => {
-    setBoards(boards.map(b => {
-      if (b.id !== boardId) return b;
-      const updatedColumns = [...b.columns];
-      updatedColumns[columnIndex].tasks.push(task);
-      return { ...b, columns: updatedColumns };
-    }));
+  const editColumn = (boardId, columnIndex, newName) => {
+    setBoards(prevBoards =>
+      prevBoards.map(board =>
+        board.id === boardId
+          ? {
+              ...board,
+              columns: board.columns.map((col, idx) =>
+                idx === columnIndex ? { ...col, name: newName } : col
+              )
+            }
+          : board
+      )
+    );
+  };
+
+  const deleteColumn = (boardId, columnIndex) => {
+    setBoards(prevBoards =>
+      prevBoards.map(board =>
+        board.id === boardId
+          ? {
+              ...board,
+              columns: board.columns.filter((_, idx) => idx !== columnIndex)
+            }
+          : board
+      )
+    );
+  };
+  const addTask = (boardId, columnIndex, taskText) => {
+    setBoards(prevBoards => 
+      prevBoards.map(b => {
+        if (b.id !== boardId) return b;
+        
+        // Защита от отсутствия колонок или задач
+        const updatedColumns = [...(b.columns || [])];
+        if (!updatedColumns[columnIndex]) return b;
+        
+        updatedColumns[columnIndex].tasks = updatedColumns[columnIndex].tasks || [];
+        
+        const newTask = {
+          id: Date.now(),
+          title: taskText
+        };
+        
+        updatedColumns[columnIndex].tasks.push(newTask);
+        return { ...b, columns: updatedColumns };
+      })
+    );
   };
 
   const moveTask = (from, to) => {
@@ -79,6 +123,8 @@ function App() {
               moveTask={moveTask}
               editBoard={editBoard}
               deleteBoard={deleteBoard}
+              editColumn={editColumn}
+              deleteColumn={deleteColumn}
             />
           } />
 

@@ -1,36 +1,173 @@
 .column {
-  background-color: #fff;
-  padding: 1.2rem;
+  background: #FFFFFF;
   border-radius: 20px;
-  min-width: 260px;
-  max-width: 300px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  width: 300px;
+  min-height: 100px;
+  margin-right: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  flex-shrink: 0;
-  transition: box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(254, 91, 61, 0.1);
+  border: 1px solid #FFE8E2;
 }
 
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #FFE8E2;
+}
 
-.column h3 {
+.column-header h3 {
   margin: 0;
-  font-size: 24px;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  flex-grow: 1;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #FE5B3D;
+  transition: all 0.3s ease;
+}
+
+.column-header h3:hover {
+  color: #FF8E53;
+}
+
+.column-edit-input {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.column-edit-input input {
+  flex-grow: 1;
+  padding: 0.6rem 1rem;
+  font-size: 1.1rem;
+  border: 2px solid #FF8E53;
+  border-radius: 20px;
+  color: #FE5B3D;
   font-weight: 600;
-  color: #fe5b3d;
-  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.column-edit-input input:focus {
+  outline: none;
+  border-color: #FE5B3D;
+  box-shadow: 0 0 0 3px rgba(254, 91, 61, 0.2);
+}
+
+.column-edit-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.column-edit-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.confirm-edit {
+  color: #FE5B3D;
+  background-color: rgba(254, 91, 61, 0.1);
+}
+
+.confirm-edit:hover {
+  background-color: rgba(254, 91, 61, 0.2);
+  transform: scale(1.1);
+}
+
+.cancel-edit {
+  color: #888;
+  background-color: rgba(136, 136, 136, 0.1);
+}
+
+.cancel-edit:hover {
+  background-color: rgba(136, 136, 136, 0.2);
+  transform: scale(1.1);
+}
+
+.column-actions {
+  position: relative;
+}
+
+.column-menu-btn {
+  background: rgba(254, 91, 61, 0.1);
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  color: #FE5B3D;
+  display: flex;
+  transition: all 0.3s ease;
+}
+
+.column-menu-btn:hover {
+  background: rgba(254, 91, 61, 0.2);
+  transform: rotate(90deg);
+}
+
+.column-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #FFE8E2;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(254, 91, 61, 0.15);
+  z-index: 10;
+  min-width: 180px;
+  overflow: hidden;
+}
+
+.column-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.8rem 1.2rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: #555;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.column-dropdown button:hover {
+  background-color: #FFF5F2;
+  color: #FE5B3D;
+}
+
+.column-dropdown button svg {
+  color: #FE5B3D;
+  font-size: 1rem;
 }
 
 .tasks {
+  flex-grow: 1;
+  min-height: 20px;
+  margin-bottom: 1.5rem;
   display: flex;
-  align-items: center;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.8rem;
   overflow-y: auto;
   max-height: 60vh;
-  padding-right: 2px;
+  padding-right: 5px;
 }
 
+/* Кастомный инпут (сохранён ваш стиль) */
 .task-input {
   display: flex;
   gap: 0.5rem;
@@ -50,6 +187,7 @@
 .task-input input:focus {
   outline: none;
   border-color: #fe5b3d;
+  box-shadow: 0 0 0 3px rgba(254, 91, 61, 0.2);
 }
 
 .task-input button {
@@ -61,8 +199,8 @@
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(254, 91, 61, 0.2);
 }
 
 .task-input button:hover {
@@ -72,4 +210,29 @@
 
 .task-input button:active {
   transform: scale(1);
+}
+
+.task-input button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.tasks::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tasks::-webkit-scrollbar-track {
+  background: #FFF5F2;
+  border-radius: 3px;
+}
+
+.tasks::-webkit-scrollbar-thumb {
+  background: #FF8E53;
+  border-radius: 3px;
+}
+
+.tasks::-webkit-scrollbar-thumb:hover {
+  background: #FE5B3D;
 }

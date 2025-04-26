@@ -1,21 +1,66 @@
 .task-card {
-  background: linear-gradient(135deg, #fbd5c9, #fdb099);
-  color: #333;
-  padding: 1rem;
-  border-radius: 16px;
-  font-size: 1rem;
-  font-weight: 500;
+  width: 85%;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
   cursor: grab;
-  user-select: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  width: 83%;
+  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.task-card div p {
+  margin-bottom: 10px;
 }
 
 .task-card:hover {
-  transform: scale(1.03);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.task-card:active {
-  cursor: grabbing;
-  transform: scale(1);
+.task-card input[type="text"] {
+  width: 90%;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+}
+
+.task-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #343a40;
+  word-break: break-word;
+}
+
+.task-card button {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.task-card button:hover {
+  opacity: 0.9;
+}
+
+.task-card .edit-btn {
+  background-color: #fe5b3d;
+  color: white;
+}
+
+.task-card .delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.task-card .btn-group {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
 }
