@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./BoardList.css";
 
 const BoardList = ({ boards, addBoard, editBoard, deleteBoard }) => {
   const [boardName, setBoardName] = useState("");
+  const navigate = useNavigate();
 
   const handleAddBoard = () => {
     if (boardName.trim()) {
@@ -24,11 +25,29 @@ const BoardList = ({ boards, addBoard, editBoard, deleteBoard }) => {
       <button onClick={handleAddBoard} className="add-btn">Create</button>
       <ul>
         {boards.map((board) => (
-          <li key={board.id}>
-            <Link to={`/board/${board.id}`}>{board.name}</Link>
-            <button onClick={() => editBoard(board.id, prompt("New name:", board.name))}>Edit</button>
-            <button onClick={() => deleteBoard(board.id)}>Delete</button>
-          </li>
+          <li key={board.id} onClick={() => navigate(`/board/${board.id}`)}>
+            {board.name}
+            <div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const newName = prompt("New name:", board.name);
+                  if (newName) editBoard(board.id, newName);
+                }}
+              >
+                Edit
+              </button>
+            
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteBoard(board.id);
+                }}
+              >
+                Delete
+              </button>
+          </div>
+        </li>        
         ))}
       </ul>
     </div>

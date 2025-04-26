@@ -1,4 +1,4 @@
-/* Основной фон для всей доски */
+
 .board-list {
   display: flex;
   flex-direction: column;
@@ -17,8 +17,6 @@ h1 {
   font-size: 2.5rem;
 }
 
-
-/* Ввод имени новой доски */
 .board-input-container {
   display: flex;
   flex-direction: column;
@@ -45,7 +43,6 @@ h1 {
   box-shadow: 0 0 0 2px rgba(255, 142, 83, 0.4);
 }
 
-/* Кнопка для добавления новой доски */
 .add-btn {
   padding: 0.7rem 1.5rem;
   background-color: #fe5b3d;
@@ -60,14 +57,13 @@ h1 {
 
 .add-btn:hover {
   background-color: #ff8e53;
-  transform: translateY(-2px);
+  transform: scale(1.05);
 }
 
 .add-btn:active {
-  transform: translateY(2px);
+  transform: scale(1);
 }
 
-/* Список досок */
 .board-list ul {
   list-style: none;
   padding: 0;
@@ -79,7 +75,7 @@ h1 {
   text-align: center;
   width: 100%;
 }
-/* Стили для доски */
+
 .board-list li {
   position: relative;
   cursor: pointer;
@@ -93,10 +89,48 @@ h1 {
   font-weight: bold;
   color: #444;
   font-size: 1.2rem;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* Эффект свечения при наведении на доску */
 .board-list li:hover {
   box-shadow: 0 0 30px rgba(238, 236, 234, 0.7);
+}
+
+.board-list li button {
+  margin-inline: 0.3rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.board-list li button:hover {
+  transform: scale(1.05);
+}
+
+.board-list li button:active {
+  transform: scale(1);
+}
+
+.board-list li button:nth-of-type(1) {
+  background-color: #ffc107;
+  color: #fff;
+}
+
+.board-list li button:nth-of-type(1):hover {
+  background-color: #ffca28;
+}
+
+.board-list li button:nth-of-type(2) {
+  background-color: #e53935;
+  color: #fff;
+}
+
+.board-list li button:nth-of-type(2):hover {
+  background-color: #f44336;
 }

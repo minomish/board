@@ -1,15 +1,11 @@
 import React, { useState } from "react";
 import Column from "../Column/Column";
+import EditBoardModal from "../EditBoardModal/EditBoardModal";
 import "./Board.css";
 
-const Board = ({ board, boardIndex, addColumn, addTask, moveTask, editBoard, deleteBoard }) => {
+const Board = ({ board, boardIndex, addColumn, addTask, moveTask, moveColumn, editBoard, deleteBoard }) => {
   const [columnName, setColumnName] = useState("");
-  const [newBoardName, setNewBoardName] = useState(board.name);
-  const [isEditingName, setIsEditingName] = useState(false);
-
-  if (!board) {
-    return <div>Loading...</div>;
-  }
+  const [showModal, setShowModal] = useState(false);
 
   const handleAddColumn = () => {
     if (columnName.trim()) {
@@ -18,51 +14,29 @@ const Board = ({ board, boardIndex, addColumn, addTask, moveTask, editBoard, del
     }
   };
 
-  const handleEditBoardName = () => {
-    if (isEditingName) {
-      editBoard(board.id, newBoardName);
-    }
-    setIsEditingName(!isEditingName);
-  };
-
   const handleDeleteBoard = () => {
     deleteBoard(board.id);
   };
 
-  const moveColumn = (fromIndex, toIndex) => {
-    const updatedColumns = [...board.columns];
-    const [moved] = updatedColumns.splice(fromIndex, 1);
-    updatedColumns.splice(toIndex, 0, moved);
-    board.columns = updatedColumns;
+  const handleEditBoardName = () => {
+    setShowModal(true);
   };
 
-  const _moveTask = (from, to) => {
-    const updatedColumns = [...board.columns];
-    const [movedTask] = updatedColumns[from.columnIndex].tasks.splice(from.taskIndex, 1);
-    updatedColumns[to.columnIndex].tasks.splice(to.taskIndex, 0, movedTask);
-    board.columns = updatedColumns;
+  const handleSaveBoardName = (newName) => {
+    editBoard(board.id, newName);
+    setShowModal(false);
   };
 
   return (
     <div className="board">
       <div className="board-header">
-        {isEditingName ? (
-          <input
-            type="text"
-            value={newBoardName}
-            onChange={(e) => setNewBoardName(e.target.value)}
-            className="board-name-edit"
-          />
-        ) : (
-          <h2>{board.name}</h2>
-        )}
+        <h2>{board.name}</h2>
         <div className="board-actions">
-          <button onClick={handleEditBoardName}>
-            {isEditingName ? "Save Name" : "Edit Name"}
-          </button>
+          <button onClick={handleEditBoardName}>Edit Name</button>
           <button onClick={handleDeleteBoard}>Delete Board</button>
         </div>
       </div>
+
       <div className="columns-container">
         {board.columns.map((col, idx) => (
           <Column
@@ -85,6 +59,14 @@ const Board = ({ board, boardIndex, addColumn, addTask, moveTask, editBoard, del
           <button onClick={handleAddColumn}>Add Column</button>
         </div>
       </div>
+
+      {showModal && (
+        <EditBoardModal
+          currentName={board.name}
+          onSave={handleSaveBoardName}
+          onCancel={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };

@@ -73,6 +73,7 @@ function App() {
           <Route path="/board/:boardId" element={
             <BoardWrapper
               boards={boards}
+              setBoards={setBoards}
               addColumn={addColumn}
               addTask={addTask}
               moveTask={moveTask}
@@ -80,6 +81,7 @@ function App() {
               deleteBoard={deleteBoard}
             />
           } />
+
         </Routes>
       </Router>
     </DndProvider>
